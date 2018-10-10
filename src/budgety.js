@@ -22,24 +22,26 @@ class Budgety {
     return `${date[1]} ${date[3]}`;
   }
 
-  set addList({ type, description, value }) {
-    if (type === "increase") this.addIncomeList(description, value);
-    else this.addExpensesList(description, value);
+  set addToList({ type, description, value }) {
+    type === "increase"
+      ? this.addToIncomeList(description, value)
+      : this.addToExpensesList(description, value);
   }
 
-  set removeList({ type, idx }) {
-    if (type === "increase") this.removeIncomeList(idx);
-    else this.removeExpensesList(idx);
+  set removeFromList({ type, idx }) {
+    type === "increase"
+      ? this.removeFromIncomeList(idx)
+      : this.removeFromExpensesList(idx);
   }
 
-  addIncomeList(description, value) {
+  addToIncomeList(description, value) {
     this.income += value * 1;
     const item = { description, value };
     this.incomeList.push(item);
   }
 
-  addExpensesList(description, value) {
-    this.expenses += value * 1;
+  addToExpensesList(description, value) {
+    this.expenses += value;
     const item = {
       description,
       value,
@@ -52,12 +54,12 @@ class Budgety {
     this.expensesList.push(item);
   }
 
-  removeIncomeList(idx) {
+  removeFromIncomeList(idx) {
     this.income -= this.incomeList[idx].value;
     this.incomeList.splice(idx, 1);
   }
 
-  removeExpensesList(idx) {
+  removeFromExpensesList(idx) {
     this.expenses -= this.expensesList[idx].value;
     this.expensesList.splice(idx, 1);
   }
@@ -119,7 +121,7 @@ const UIController = (() => {
               <div class="item__percentage">${getPercentage()}</div>
               <div class="item__value">- ${value.toFixed(2)}</div>
               <div class="item__delete">
-                <button class="item__delete--btn blue">
+                <button class="item__delete--btn red">
                   <i class="ion-ios-close-outline"></i>
                 </button>
               </div>
@@ -135,11 +137,8 @@ const UIController = (() => {
   });
 
   const updateUI = obj => {
-    let { type, description, value } = getInputValue();
-    const { incomeList, expensesList } = obj;
-
     document.querySelector(DOMstrings.budgetLabel).textContent = `${
-      obj.total > 0 ? "+" : "-"
+      obj.total >= 0 ? "+" : "-"
     } ${Math.abs(obj.total).toFixed(2)}`;
 
     document.querySelector(
@@ -165,7 +164,7 @@ const UIController = (() => {
     ctrlAddItem: (event, obj) => {
       const { type, description, value } = getInputValue();
       if (description !== "" && value !== "" && value * 1 > 0) {
-        obj.addList = { type, description, value };
+        obj.addToList = { type, description, value };
         updateUI(obj);
       }
     },
@@ -173,7 +172,7 @@ const UIController = (() => {
     ctrlDeleteItem: (event, obj) => {
       const item = event.target.parentNode.parentNode.parentNode;
       if (item.className === "item") {
-        obj.removeList = getItemDetails(item);
+        obj.removeFromList = getItemDetails(item);
         updateUI(obj);
       }
     },
@@ -195,6 +194,10 @@ const UIController = (() => {
       document.querySelector(".budget__title").textContent += `${
         obj.currentDate
       }:`;
+    },
+
+    initialUpdate: obj => {
+      updateUI(obj);
     },
 
     getDOMstrings: () => {
@@ -227,8 +230,9 @@ const controller = ((Budget, UICtrl) => {
 
   return {
     init: () => {
-      UICtrl.setCurrentDate(Budget);
       setupEventListeners();
+      UICtrl.setCurrentDate(Budget);
+      UICtrl.initialUpdate(Budget);
     }
   };
 })(new Budgety(), UIController);
