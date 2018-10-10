@@ -12,13 +12,14 @@ body {
   font-weight: 400;
   min-width: 1200px;
 }
-
+/************************************************/
 .blue {
   color: #28b9b5;
 }
 .red {
   color: #ff5049;
 }
+/************************************************/
 
 .top {
   position: relative;
@@ -255,6 +256,18 @@ body {
   border: none;
   background: none;
   cursor: pointer;
+}
+
+.add__description:focus,
+.add__type:focus,
+.add__value:focus {
+  border-color: #28b9b5;
+}
+
+.add__description.red-box:focus,
+.add__type.red-box:focus,
+.add__value.red-box:focus {
+  border-color: #ff5049;
 }
 
 .item:hover .item__value {
